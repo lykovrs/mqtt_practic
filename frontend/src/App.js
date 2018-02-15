@@ -1,11 +1,25 @@
 import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import { subscribeToMessage, sendMessage } from "./api";
 
 class App extends Component {
   state = {
+    messages: [],
     value: "",
   };
+
+  constructor(props) {
+    super(props);
+    subscribeToMessage((err, message) => {
+      this.setState({
+        messages: [...this.state.messages, message],
+      });
+    });
+  }
+
+  getMessages = () =>
+    this.state.messages.map((message, i) => <li key={i}>{message}</li>);
 
   render() {
     return (
@@ -15,6 +29,7 @@ class App extends Component {
           <h1 className="App-title">Welcome to React</h1>
         </header>
         <div className="App-intro">
+          <ul id="messages">{this.getMessages()}</ul>
           <form onSubmit={this.handleSubmit}>
             Send data on <code>MQTT</code>.
             <input
@@ -32,7 +47,7 @@ class App extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    console.log(this.state.value);
+    sendMessage(this.state.value);
   };
 
   handleChange = e => {
